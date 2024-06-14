@@ -193,12 +193,115 @@ let games = [
     }
 ];
 
-let container = document.getElementById("container");
+let container = document.getElementById("games");
+let selectedGames = [];
+let totalPrice = 0;
 
+// Lijst met games aantonen
 games.forEach(game => {
+    let gameDiv = document.createElement("div");
+    gameDiv.classList.add("gameLst");
+
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = "gameCheckbox";
+    checkbox.value = game.title;
+    checkbox.id = game.title.replace(/\s+/g, '-');
+
+    gameDiv.appendChild(checkbox);
+
+    let gameData = document.createElement("div");
+    gameData.classList.add("gameData");
+
     for (let value in game) {
-        let span = document.createElement("p");
-        span.innerHTML = `${value}: ${game[value]}`;
-        container.appendChild(span);
+        if  (value === "title") {
+            let title = document.createElement("p");
+            title.innerHTML = `${game[value]}`;
+            title.classList.add("title");
+            gameData.appendChild(title);
+        } else if  (value === "price") {
+            let price = document.createElement("p");
+
+            if (`${game[value]}` == 0.00) {
+                price.innerHTML = `FREE`;
+            } else {
+                price.innerHTML = `$${game[value]}`;
+            }
+            
+            price.classList.add("price");
+            gameData.appendChild(price);
+        }
     }
+
+    gameDiv.appendChild(gameData);
+    container.appendChild(gameDiv);
 })
+
+
+// Winkelwagen aantonen
+let submitButton = document.createElement("button");
+submitButton.innerHTML = "Submit";
+container.appendChild(submitButton);
+
+submitButton.addEventListener("click", function(evt) {
+    evt.preventDefault();
+ 
+    let checkboxes = document.querySelectorAll('.gameLst input[type="checkbox"]');
+    
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+            let selectedGame = games.find(game => game.title === checkbox.value);
+            if (selectedGame) {
+                selectedGames.push(selectedGame);
+            }
+        }
+    });
+
+    console.log(selectedGames);
+
+    $( "#games" ).empty();
+   
+    selectedGames.forEach((game, index) => {
+        let gameDiv = document.createElement("div");
+        gameDiv.classList.add("gameLst");
+    
+        let gameData = document.createElement("div");
+        gameData.classList.add("gameData");
+    
+        for (let value in game) {
+            if  (value === "title") {
+                let title = document.createElement("p");
+                title.innerHTML = `${game[value]}`;
+                title.classList.add("title");
+                gameData.appendChild(title);
+            } else if  (value === "price") {
+                let price = document.createElement("p");
+    
+                if (`${game[value]}` == 0.00) {
+                    price.innerHTML = `FREE`;
+                } else {
+                    price.innerHTML = `$${game[value]}`;
+                }
+
+                totalPrice += game[value]
+                
+                price.classList.add("price");
+                gameData.appendChild(price);
+            }
+        }
+    
+        let totalPriceDiv = document.createElement("p");
+        totalPriceDiv.innerHTML = totalPrice;
+
+        gameDiv.appendChild(gameData);
+        container.appendChild(gameDiv);
+
+        if (index === selectedGames.length - 1) {
+            container.appendChild(totalPriceDiv); 
+        }
+    })
+});
+
+// Prijs filter
+let filtersDiv = document.getElementById("filters");
+let filteredGames = [];

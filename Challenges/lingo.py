@@ -1,0 +1,72 @@
+from lingowords import *
+import random
+from colorama import init, Fore
+init(autoreset=True)
+
+def selectedWord():
+    return random.choice(words)
+
+def guessWord():
+    return input(Fore.WHITE + "Raad: ")
+
+def wordLength(guess):
+    return len(guess) == 5
+
+def checkingForColors(guessedWord, word, correctLetters):
+    tempWord = '' 
+    newCorrectLetters = list(correctLetters) 
+    wordOccurences = {}
+
+    for letter in word:
+        if letter not in wordOccurences:
+            wordOccurences[letter] = word.count(letter)
+
+    for i in range(len(guessedWord)):
+        if guessedWord[i] == word[i]:
+            tempWord += "+"
+            newCorrectLetters[i] = guessedWord[i]
+            wordOccurences[guessedWord[i]] -= 1  
+        elif guessedWord[i] in word and newCorrectLetters[i] != guessedWord[i] and wordOccurences[guessedWord[i]] > 0:
+            tempWord += "-"
+            wordOccurences[guessedWord[i]] -= 1  
+        else:
+            tempWord += "X"
+
+    return tempWord, ''.join(newCorrectLetters)
+
+
+def hasWon(correctLetters, word):
+    return correctLetters == word
+
+
+def mainGame():
+    word = selectedWord()
+    attempts = 5
+    won = False
+
+    correctLetters = word[0] + "____"
+    print(Fore.GREEN + correctLetters)
+
+    print(word)
+
+    while not won and attempts > 0:
+        guessedWord = guessWord()
+        if not wordLength(guessedWord):
+            print("Het woord is maar 5 letters lang.")
+            continue
+        
+        tempWord, correctLetters = checkingForColors(guessedWord, word, correctLetters)
+        print(tempWord)
+        # print(Fore.GREEN + correctLetters)
+
+        won = hasWon(correctLetters, word)
+        attempts -= 1
+        if not won:
+            print(f"Nog {attempts} pogingen over!")
+
+    if won:
+        print(f"Gefeliciteerd je hebt het woord geraden! Het woord was: {Fore.GREEN + word}")
+    else:
+        print(f"Jammer je hebt verloren. Het woord was: {Fore.GREEN + word}")
+
+mainGame()
